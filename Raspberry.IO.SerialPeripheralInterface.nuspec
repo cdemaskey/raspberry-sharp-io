@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Raspberry.IO.SerialPeripheralInterface</id>
+    <version>2.3.0-alpha1</version>
+    <title>Raspberry.IO.SerialPeripheralInterface</title>
+    <authors>Christoph DeMaskey, original author Eric Bézine</authors>
+    <licenseUrl>http://opensource.org/licenses/GPL-2.0</licenseUrl>
+    <projectUrl>https://github.com/cdemaskey/raspberry-sharp-io</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>
+      Raspberry.IO is a set of Mono/.NET assembly providing access to Raspberry Pi I/O features.
+    </description>
+    <summary>Raspberry.IO is a set of Mono/.NET assembly providing access to Raspberry Pi I/O features.</summary>
+    <language>en-US</language>
+    <tags>Raspberry Pi Mono SPI</tags>
+    <dependencies>
+      <dependency id="Raspberry.System" version="2.0.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Raspberry.IO.SerialPeripheralInterface\bin\release\Raspberry.IO.dll" target="lib\net40" />
+    <file src="Raspberry.IO.SerialPeripheralInterface\bin\release\Raspberry.IO.xml" target="lib\net40" />
+    <file src="Raspberry.IO.SerialPeripheralInterface\bin\release\Raspberry.IO.SerialPeripheralInterface.dll" target="lib\net40" />
+    <file src="Raspberry.IO.SerialPeripheralInterface\bin\release\Raspberry.IO.SerialPeripheralInterface.pdb" target="lib\net40" />
+    <file src="Raspberry.IO.SerialPeripheralInterface\bin\release\Raspberry.IO.SerialPeripheralInterface.xml" target="lib\net40" />
+    <file src="Raspberry.IO.SerialPeripheralInterface\bin\release\Raspberry.IO.Interop.dll" target="lib\net40" />
+    <file src="Raspberry.IO.SerialPeripheralInterface\**\*.cs" target="src" />
+  </files>
+</package>
