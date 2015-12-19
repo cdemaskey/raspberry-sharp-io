@@ -59,7 +59,7 @@ namespace Raspberry.IO.Components.Converters.Mcp4822
         /// <param name="data">The data.</param>
         public void Write(Mcp4822Channel channel, AnalogValue data)
         {
-            using (spiConnection.SelectSlave())
+            using (spiConnection.SelectSlave1())
             {
                 var value = (uint)(data.Relative * 0xFFF);
                 if (value > 0xFFF)

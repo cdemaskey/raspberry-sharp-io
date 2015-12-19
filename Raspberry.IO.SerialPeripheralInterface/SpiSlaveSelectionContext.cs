@@ -15,13 +15,16 @@ namespace Raspberry.IO.SerialPeripheralInterface
 
         private readonly SpiConnection connection;
 
+        private readonly IOutputBinaryPin selectSlavePin;
+
         #endregion
 
         #region Instance Management
 
-        internal SpiSlaveSelectionContext(SpiConnection connection)
+        internal SpiSlaveSelectionContext(SpiConnection connection, IOutputBinaryPin selectSlavePin)
         {
             this.connection = connection;
+            this.selectSlavePin = selectSlavePin;
         }
 
         /// <summary>
@@ -29,7 +32,7 @@ namespace Raspberry.IO.SerialPeripheralInterface
         /// </summary>
         void IDisposable.Dispose()
         {
-            connection.DeselectSlave();
+            connection.DeselectSlave(this.selectSlavePin);
         }
 
         #endregion

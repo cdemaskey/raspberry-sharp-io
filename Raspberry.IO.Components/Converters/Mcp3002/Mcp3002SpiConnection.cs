@@ -51,7 +51,7 @@ namespace Raspberry.IO.Components.Converters.Mcp3002
         /// <returns>The value</returns>
         public AnalogValue Read(Mcp3002Channel channel)
         {
-            using(spiConnection.SelectSlave())
+            using(spiConnection.SelectSlave1())
             {
                 // Start bit
                 spiConnection.Write(true);

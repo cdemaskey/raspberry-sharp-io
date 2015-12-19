@@ -15,7 +15,8 @@ namespace Raspberry.IO.SerialPeripheralInterface
         #region Fields
 
         private readonly IOutputBinaryPin clockPin;
-        private readonly IOutputBinaryPin selectSlavePin;
+        private readonly IOutputBinaryPin selectSlave1Pin;
+        private readonly IOutputBinaryPin selectSlave2Pin;
         private readonly IInputBinaryPin misoPin;
         private readonly IOutputBinaryPin mosiPin;
 
@@ -35,20 +36,42 @@ namespace Raspberry.IO.SerialPeripheralInterface
         /// <param name="misoPin">The miso pin.</param>
         /// <param name="mosiPin">The mosi pin.</param>
         /// <param name="endianness">The endianness.</param>
-        public SpiConnection(IOutputBinaryPin clockPin, IOutputBinaryPin selectSlavePin, IInputBinaryPin misoPin, IOutputBinaryPin mosiPin, Endianness endianness)
+        public SpiConnection(IOutputBinaryPin clockPin, IOutputBinaryPin selectSlavePin, IInputBinaryPin misoPin, IOutputBinaryPin mosiPin, Endianness endianness):
+            this(clockPin, selectSlavePin, null, misoPin, mosiPin, endianness)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SpiConnection"/> class.
+        /// </summary>
+        /// <param name="clockPin">The clock pin.</param>
+        /// <param name="selectSlave1Pin">The select slave 1 pin.</param>
+        /// <param name="selectSlave2Pin">The select slave 2 pin.</param>
+        /// <param name="misoPin">The miso pin.</param>
+        /// <param name="mosiPin">The mosi pin.</param>
+        /// <param name="endianness">The endianness.</param>
+        public SpiConnection(IOutputBinaryPin clockPin, IOutputBinaryPin selectSlave1Pin, IOutputBinaryPin selectSlave2Pin, IInputBinaryPin misoPin, IOutputBinaryPin mosiPin, Endianness endianness)
         {
             this.clockPin = clockPin;
-            this.selectSlavePin = selectSlavePin;
+            this.selectSlave1Pin = selectSlave1Pin;
+            this.selectSlave2Pin = selectSlave2Pin;
             this.misoPin = misoPin;
             this.mosiPin = mosiPin;
             this.endianness = endianness;
 
-            clockPin.Write(false);
-            selectSlavePin.Write(true);
+            this.clockPin.Write(false);
+            this.selectSlave1Pin.Write(true);
+
+            if(this.selectSlave2Pin != null)
+            {
+                this.selectSlave2Pin.Write(false);
+            }
 
             if (mosiPin != null)
+            {
                 mosiPin.Write(false);
             }
+        }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -68,21 +91,39 @@ namespace Raspberry.IO.SerialPeripheralInterface
         public void Close()
         {
             clockPin.Dispose();
-            selectSlavePin.Dispose();
+            selectSlave1Pin.Dispose();
+            if (selectSlave2Pin != null)
+            {
+                selectSlave2Pin.Dispose();
+            }
             if (mosiPin != null)
+            {
                 mosiPin.Dispose();
+            }
             if (misoPin != null)
+            {
                 misoPin.Dispose();
+            }
         }
 
         /// <summary>
-        /// Selects the slave device.
+        /// Selects the slave 1 device.
         /// </summary>
         /// <returns>The slave selection context.</returns>
-        public SpiSlaveSelectionContext SelectSlave()
+        public SpiSlaveSelectionContext SelectSlave1()
         {
-            selectSlavePin.Write(false);
-            return new SpiSlaveSelectionContext(this);
+            selectSlave1Pin.Write(false);
+            return new SpiSlaveSelectionContext(this, selectSlave1Pin);
+        }
+
+        /// <summary>
+        /// Selects the slave 2 device.
+        /// </summary>
+        /// <returns>The slave selection context.</returns>
+        public SpiSlaveSelectionContext SelectSlave2()
+        {
+            selectSlave2Pin.Write(false);
+            return new SpiSlaveSelectionContext(this, selectSlave2Pin);
         }
 
         /// <summary>
@@ -202,7 +243,7 @@ namespace Raspberry.IO.SerialPeripheralInterface
 
         #region Internal Methods
 
-        internal void DeselectSlave()
+        internal void DeselectSlave(IOutputBinaryPin selectSlavePin)
         {
             selectSlavePin.Write(true);
         }
@@ -219,7 +260,7 @@ namespace Raspberry.IO.SerialPeripheralInterface
                                 ? i
                                 : bitCount - 1 - i;
 
-                var bit = data & ((ulong) 1 << index);
+                var bit = data & ((ulong)1 << index);
                 Write(bit != 0);
             }
         }
