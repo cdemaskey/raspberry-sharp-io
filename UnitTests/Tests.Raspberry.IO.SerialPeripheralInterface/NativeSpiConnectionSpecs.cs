@@ -11,143 +11,143 @@ using Raspberry.IO.SerialPeripheralInterface;
 // ReSharper disable InconsistentNaming
 namespace Tests.Raspberry.IO.SerialPeripheralInterface.NativeSpiConnectionSpecs
 {
-    [TestFixture]
-    public class If_the_user_creates_a_native_SPI_connection_instance_providing_appropriate_connection_settings : Spec {
-        private const int BITS_PER_WORD = 8;
-        private const int DELAY = 500;
-        private const SpiMode SPI_MODE = SpiMode.Mode2;
-        private const int SPEED_IN_HZ = 500000;
+    //[TestFixture]
+    //public class If_the_user_creates_a_native_SPI_connection_instance_providing_appropriate_connection_settings : Spec {
+    //    private const int BITS_PER_WORD = 8;
+    //    private const int DELAY = 500;
+    //    private const SpiMode SPI_MODE = SpiMode.Mode2;
+    //    private const int SPEED_IN_HZ = 500000;
         
-        private SpiConnectionSettings settings;
-        private NativeSpiConnection connection;
-        private ISpiControlDevice controlDevice;
+    //    private SpiConnectionSettings settings;
+    //    private NativeSpiConnection connection;
+    //    private ISpiControlDevice controlDevice;
 
-        protected override void EstablishContext() {
-            settings = new SpiConnectionSettings {
-                BitsPerWord = BITS_PER_WORD,
-                Delay = DELAY,
-                Mode = SPI_MODE,
-                MaxSpeed = SPEED_IN_HZ
-            };
+    //    protected override void EstablishContext() {
+    //        settings = new SpiConnectionSettings {
+    //            BitsPerWord = BITS_PER_WORD,
+    //            Delay = DELAY,
+    //            Mode = SPI_MODE,
+    //            MaxSpeed = SPEED_IN_HZ
+    //        };
 
-            controlDevice = A.Fake<ISpiControlDevice>();
-        }
+    //        controlDevice = A.Fake<ISpiControlDevice>();
+    //    }
 
-        protected override void BecauseOf() {
-            connection = new NativeSpiConnection(controlDevice, settings);
-        }
+    //    protected override void BecauseOf() {
+    //        connection = new NativeSpiConnection(controlDevice, settings);
+    //    }
 
-        [Test]
-        public void Should_it_write_the_max_speed_in_Hz_to_the_control_device() {
-            UInt32 speed = SPEED_IN_HZ;
+    //    [Test]
+    //    public void Should_it_write_the_max_speed_in_Hz_to_the_control_device() {
+    //        UInt32 speed = SPEED_IN_HZ;
             
-            controlDevice
-                .CallsTo(device => device.Control(NativeSpiConnection.SPI_IOC_WR_MAX_SPEED_HZ, ref speed))
-                .MustHaveHappened(Repeated.Exactly.Once);
+    //        controlDevice
+    //            .CallsTo(device => device.Control(NativeSpiConnection.SPI_IOC_WR_MAX_SPEED_HZ, ref speed))
+    //            .MustHaveHappened(Repeated.Exactly.Once);
 
-            controlDevice
-                .CallsTo(device => device.Control(NativeSpiConnection.SPI_IOC_RD_MAX_SPEED_HZ, ref speed))
-                .MustHaveHappened(Repeated.Exactly.Once);
-        }
+    //        controlDevice
+    //            .CallsTo(device => device.Control(NativeSpiConnection.SPI_IOC_RD_MAX_SPEED_HZ, ref speed))
+    //            .MustHaveHappened(Repeated.Exactly.Once);
+    //    }
 
-        [Test]
-        public void Should_it_write_the_bits_per_word_to_the_control_device() {
-            byte bitsPerWord = BITS_PER_WORD;
+    //    [Test]
+    //    public void Should_it_write_the_bits_per_word_to_the_control_device() {
+    //        byte bitsPerWord = BITS_PER_WORD;
             
-            controlDevice
-                .CallsTo(device => device.Control(NativeSpiConnection.SPI_IOC_WR_BITS_PER_WORD, ref bitsPerWord))
-                .MustHaveHappened(Repeated.Exactly.Once);
+    //        controlDevice
+    //            .CallsTo(device => device.Control(NativeSpiConnection.SPI_IOC_WR_BITS_PER_WORD, ref bitsPerWord))
+    //            .MustHaveHappened(Repeated.Exactly.Once);
 
-            controlDevice
-                .CallsTo(device => device.Control(NativeSpiConnection.SPI_IOC_RD_BITS_PER_WORD, ref bitsPerWord))
-                .MustHaveHappened(Repeated.Exactly.Once);
-        }
+    //        controlDevice
+    //            .CallsTo(device => device.Control(NativeSpiConnection.SPI_IOC_RD_BITS_PER_WORD, ref bitsPerWord))
+    //            .MustHaveHappened(Repeated.Exactly.Once);
+    //    }
 
-        [Test]
-        public void Should_it_write_the_spi_mode_to_the_control_device() {
-            var spiMode = (UInt32)SPI_MODE;
+    //    [Test]
+    //    public void Should_it_write_the_spi_mode_to_the_control_device() {
+    //        var spiMode = (UInt32)SPI_MODE;
             
-            controlDevice
-                .CallsTo(device => device.Control(NativeSpiConnection.SPI_IOC_WR_MODE, ref spiMode))
-                .MustHaveHappened(Repeated.Exactly.Once);
+    //        controlDevice
+    //            .CallsTo(device => device.Control(NativeSpiConnection.SPI_IOC_WR_MODE, ref spiMode))
+    //            .MustHaveHappened(Repeated.Exactly.Once);
 
-            controlDevice
-                .CallsTo(device => device.Control(NativeSpiConnection.SPI_IOC_RD_MODE, ref spiMode))
-                .MustHaveHappened(Repeated.Exactly.Once);
-        }
+    //        controlDevice
+    //            .CallsTo(device => device.Control(NativeSpiConnection.SPI_IOC_RD_MODE, ref spiMode))
+    //            .MustHaveHappened(Repeated.Exactly.Once);
+    //    }
 
-        [Test]
-        public void Should_it_set_the_delay() {
-            connection.Delay.Should().Be(DELAY);
-        }
+    //    [Test]
+    //    public void Should_it_set_the_delay() {
+    //        connection.Delay.Should().Be(DELAY);
+    //    }
 
-        [Test]
-        public void Should_it_set_the_speed() {
-            connection.MaxSpeed.Should().Be(SPEED_IN_HZ);
-        }
+    //    [Test]
+    //    public void Should_it_set_the_speed() {
+    //        connection.MaxSpeed.Should().Be(SPEED_IN_HZ);
+    //    }
 
-        [Test]
-        public void Should_it_set_the_SPI_mode() {
-            connection.Mode.Should().Be(SPI_MODE);
-        }
+    //    [Test]
+    //    public void Should_it_set_the_SPI_mode() {
+    //        connection.Mode.Should().Be(SPI_MODE);
+    //    }
 
-        [Test]
-        public void Should_it_set_the_bits_per_word() {
-            connection.BitsPerWord.Should().Be(BITS_PER_WORD);
-        }
-    }
+    //    [Test]
+    //    public void Should_it_set_the_bits_per_word() {
+    //        connection.BitsPerWord.Should().Be(BITS_PER_WORD);
+    //    }
+    //}
 
-    [TestFixture]
-    public class If_the_user_requests_a_spi_transfer_buffer : Spec {
-        private const int BITS_PER_WORD = 16;
-        private const int DELAY = 500;
-        private const SpiMode SPI_MODE = SpiMode.Mode2;
-        private const int SPEED_IN_HZ = 500000;
-        private const int REQUESTED_SIZE = 100;
+    //[TestFixture]
+    //public class If_the_user_requests_a_spi_transfer_buffer : Spec {
+    //    private const int BITS_PER_WORD = 16;
+    //    private const int DELAY = 500;
+    //    private const SpiMode SPI_MODE = SpiMode.Mode2;
+    //    private const int SPEED_IN_HZ = 500000;
+    //    private const int REQUESTED_SIZE = 100;
 
-        private SpiConnectionSettings settings;
-        private ISpiControlDevice controlDevice;
-        private NativeSpiConnection connection;
-        private ISpiTransferBuffer buffer;
+    //    private SpiConnectionSettings settings;
+    //    private ISpiControlDevice controlDevice;
+    //    private NativeSpiConnection connection;
+    //    private ISpiTransferBuffer buffer;
 
-        protected override void EstablishContext() {
-            settings = new SpiConnectionSettings {
-                BitsPerWord = BITS_PER_WORD, 
-                Delay = DELAY, 
-                Mode = SPI_MODE, 
-                MaxSpeed = SPEED_IN_HZ
-            };
+    //    protected override void EstablishContext() {
+    //        settings = new SpiConnectionSettings {
+    //            BitsPerWord = BITS_PER_WORD, 
+    //            Delay = DELAY, 
+    //            Mode = SPI_MODE, 
+    //            MaxSpeed = SPEED_IN_HZ
+    //        };
 
-            controlDevice = A.Fake<ISpiControlDevice>();
-            connection = new NativeSpiConnection(controlDevice, settings);
-        }
+    //        controlDevice = A.Fake<ISpiControlDevice>();
+    //        connection = new NativeSpiConnection(controlDevice, settings);
+    //    }
 
-        protected override void BecauseOf() {
-            buffer = connection.CreateTransferBuffer(REQUESTED_SIZE, SpiTransferMode.ReadWrite);
-        }
+    //    protected override void BecauseOf() {
+    //        buffer = connection.CreateTransferBuffer(REQUESTED_SIZE, SpiTransferMode.ReadWrite);
+    //    }
 
-        [Test]
-        public void Should_the_buffer_be_initialized_with_the_connections_wordsize() {
-            buffer.ControlStructure.BitsPerWord.Should().Be(BITS_PER_WORD);
-        }
+    //    [Test]
+    //    public void Should_the_buffer_be_initialized_with_the_connections_wordsize() {
+    //        buffer.ControlStructure.BitsPerWord.Should().Be(BITS_PER_WORD);
+    //    }
         
-        [Test]
-        public void Should_the_buffer_be_initialized_with_the_connections_delay() {
-            buffer.ControlStructure.Delay.Should().Be(DELAY);
-        }
+    //    [Test]
+    //    public void Should_the_buffer_be_initialized_with_the_connections_delay() {
+    //        buffer.ControlStructure.Delay.Should().Be(DELAY);
+    //    }
 
-        [Test]
-        public void Should_the_buffer_be_initialized_with_the_connections_speed() {
-            buffer.ControlStructure.Speed.Should().Be(SPEED_IN_HZ);
-        }
+    //    [Test]
+    //    public void Should_the_buffer_be_initialized_with_the_connections_speed() {
+    //        buffer.ControlStructure.Speed.Should().Be(SPEED_IN_HZ);
+    //    }
 
-        protected override void Cleanup() {
-            if (!ReferenceEquals(buffer, null)) {
-                buffer.Dispose();
-                buffer = null;
-            }
-        }
-    }
+    //    protected override void Cleanup() {
+    //        if (!ReferenceEquals(buffer, null)) {
+    //            buffer.Dispose();
+    //            buffer = null;
+    //        }
+    //    }
+    //}
 
     [TestFixture]
     public class If_the_user_starts_a_single_data_transfer : Spec {
