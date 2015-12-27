@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Raspberry.IO.SerialPeripheralInterface</id>
-    <version>2.3.0-alpha2</version>
+    <version>2.3.0-alpha3</version>
     <title>Raspberry.IO.SerialPeripheralInterface</title>
     <authors>Christoph DeMaskey, original author Eric Bézine</authors>
     <licenseUrl>http://opensource.org/licenses/GPL-2.0</licenseUrl>
