@@ -149,128 +149,128 @@ namespace Tests.Raspberry.IO.SerialPeripheralInterface.NativeSpiConnectionSpecs
     //    }
     //}
 
-    [TestFixture]
-    public class If_the_user_starts_a_single_data_transfer : Spec {
-        private const int BITS_PER_WORD = 16;
-        private const int DELAY = 500;
-        private const int SPEED_IN_HZ = 500000;
-        private const int IOCTL_PINVOKE_RESULT_CODE = 1;
-        private const int SPI_IOC_MESSAGE_1 = 0x40206b00;
+    //[TestFixture]
+    //public class If_the_user_starts_a_single_data_transfer : Spec {
+    //    private const int BITS_PER_WORD = 16;
+    //    private const int DELAY = 500;
+    //    private const int SPEED_IN_HZ = 500000;
+    //    private const int IOCTL_PINVOKE_RESULT_CODE = 1;
+    //    private const int SPI_IOC_MESSAGE_1 = 0x40206b00;
 
-        private ISpiControlDevice controlDevice;
-        private NativeSpiConnection connection;
-        private ISpiTransferBuffer buffer;
-        private int result;
-        private SpiTransferControlStructure controlStructure;
+    //    private ISpiControlDevice controlDevice;
+    //    private NativeSpiConnection connection;
+    //    private ISpiTransferBuffer buffer;
+    //    private int result;
+    //    private SpiTransferControlStructure controlStructure;
 
-        protected override void EstablishContext() {
-            // SPI control structure we expect to see during the P/Invoke call
-            controlStructure = new SpiTransferControlStructure {
-                BitsPerWord = BITS_PER_WORD,
-                Length = 5,
-                Delay = DELAY,
-                ChipSelectChange = 1,
-                Speed = SPEED_IN_HZ
-            };
+    //    protected override void EstablishContext() {
+    //        // SPI control structure we expect to see during the P/Invoke call
+    //        controlStructure = new SpiTransferControlStructure {
+    //            BitsPerWord = BITS_PER_WORD,
+    //            Length = 5,
+    //            Delay = DELAY,
+    //            ChipSelectChange = 1,
+    //            Speed = SPEED_IN_HZ
+    //        };
             
-            controlDevice = A.Fake<ISpiControlDevice>();
-            controlDevice
-                .CallsTo(device => device.Control(A<uint>.Ignored, ref controlStructure))
-                .WithAnyArguments()
-                .Returns(IOCTL_PINVOKE_RESULT_CODE);
+    //        controlDevice = A.Fake<ISpiControlDevice>();
+    //        controlDevice
+    //            .CallsTo(device => device.Control(A<uint>.Ignored, ref controlStructure))
+    //            .WithAnyArguments()
+    //            .Returns(IOCTL_PINVOKE_RESULT_CODE);
 
-            connection = new NativeSpiConnection(controlDevice);
+    //        connection = new NativeSpiConnection(controlDevice);
 
-            buffer = A.Fake<ISpiTransferBuffer>();
-            buffer
-                .CallsTo(b => b.ControlStructure)
-                .Returns(controlStructure);
-        }
+    //        buffer = A.Fake<ISpiTransferBuffer>();
+    //        buffer
+    //            .CallsTo(b => b.ControlStructure)
+    //            .Returns(controlStructure);
+    //    }
 
-        protected override void BecauseOf() {
-            result = connection.Transfer(buffer);
-        }
+    //    protected override void BecauseOf() {
+    //        result = connection.Transfer(buffer);
+    //    }
 
-        [Test]
-        public void Should_the_buffers_control_structure_be_sent_to_the_IOCTL_device() {
-            controlDevice
-                .CallsTo(device => device.Control(SPI_IOC_MESSAGE_1, ref controlStructure))
-                .MustHaveHappened(Repeated.Exactly.Once);
-        }
+    //    [Test]
+    //    public void Should_the_buffers_control_structure_be_sent_to_the_IOCTL_device() {
+    //        controlDevice
+    //            .CallsTo(device => device.Control(SPI_IOC_MESSAGE_1, ref controlStructure))
+    //            .MustHaveHappened(Repeated.Exactly.Once);
+    //    }
 
-        [Test]
-        public void Should_it_return_the_pinvoke_result_code() {
-            result.Should().Be(IOCTL_PINVOKE_RESULT_CODE);
-        }
-    }
+    //    [Test]
+    //    public void Should_it_return_the_pinvoke_result_code() {
+    //        result.Should().Be(IOCTL_PINVOKE_RESULT_CODE);
+    //    }
+    //}
 
-    [TestFixture]
-    public class If_the_user_starts_a_multi_data_transfer : Spec
-    {
-        private const int BITS_PER_WORD = 16;
-        private const int DELAY = 500;
-        private const int SPEED_IN_HZ = 500000;
-        private const int IOCTL_PINVOKE_RESULT_CODE = 1;
-        private const int SPI_IOC_MESSAGE_1 = 0x40206b00;
+    //[TestFixture]
+    //public class If_the_user_starts_a_multi_data_transfer : Spec
+    //{
+    //    private const int BITS_PER_WORD = 16;
+    //    private const int DELAY = 500;
+    //    private const int SPEED_IN_HZ = 500000;
+    //    private const int IOCTL_PINVOKE_RESULT_CODE = 1;
+    //    private const int SPI_IOC_MESSAGE_1 = 0x40206b00;
 
-        private ISpiControlDevice controlDevice;
-        private NativeSpiConnection connection;
-        private ISpiTransferBufferCollection collection;
-        private ISpiTransferBuffer buffer;
-        private int result;
-        private SpiTransferControlStructure controlStructure;
+    //    private ISpiControlDevice controlDevice;
+    //    private NativeSpiConnection connection;
+    //    private ISpiTransferBufferCollection collection;
+    //    private ISpiTransferBuffer buffer;
+    //    private int result;
+    //    private SpiTransferControlStructure controlStructure;
 
-        protected override void EstablishContext() {
-            controlDevice = A.Fake<ISpiControlDevice>();
-            controlDevice
-                .CallsTo(device => device.Control(A<uint>.Ignored, A<SpiTransferControlStructure[]>.Ignored))
-                .Returns(IOCTL_PINVOKE_RESULT_CODE);
+    //    protected override void EstablishContext() {
+    //        controlDevice = A.Fake<ISpiControlDevice>();
+    //        controlDevice
+    //            .CallsTo(device => device.Control(A<uint>.Ignored, A<SpiTransferControlStructure[]>.Ignored))
+    //            .Returns(IOCTL_PINVOKE_RESULT_CODE);
 
-            connection = new NativeSpiConnection(controlDevice);
+    //        connection = new NativeSpiConnection(controlDevice);
 
-            // SPI control structure we expect to see during the P/Invoke call
-            controlStructure = new SpiTransferControlStructure {
-                BitsPerWord = BITS_PER_WORD,
-                Length = 5,
-                Delay = DELAY,
-                ChipSelectChange = 1,
-                Speed = SPEED_IN_HZ
-            };
+    //        // SPI control structure we expect to see during the P/Invoke call
+    //        controlStructure = new SpiTransferControlStructure {
+    //            BitsPerWord = BITS_PER_WORD,
+    //            Length = 5,
+    //            Delay = DELAY,
+    //            ChipSelectChange = 1,
+    //            Speed = SPEED_IN_HZ
+    //        };
 
-            buffer = A.Fake<ISpiTransferBuffer>();
-            buffer
-                .CallsTo(b => b.ControlStructure)
-                .Returns(controlStructure);
+    //        buffer = A.Fake<ISpiTransferBuffer>();
+    //        buffer
+    //            .CallsTo(b => b.ControlStructure)
+    //            .Returns(controlStructure);
             
-            // setup fake collection to return our "prepared" fake buffer
-            collection = A.Fake<ISpiTransferBufferCollection>();
-            collection
-                .CallsTo(c => c.Length)
-                .Returns(1);
-            collection
-                .CallsTo(c => c.GetEnumerator())
-                .ReturnsLazily(call => new List<ISpiTransferBuffer>{buffer}.GetEnumerator());
-        }
+    //        // setup fake collection to return our "prepared" fake buffer
+    //        collection = A.Fake<ISpiTransferBufferCollection>();
+    //        collection
+    //            .CallsTo(c => c.Length)
+    //            .Returns(1);
+    //        collection
+    //            .CallsTo(c => c.GetEnumerator())
+    //            .ReturnsLazily(call => new List<ISpiTransferBuffer>{buffer}.GetEnumerator());
+    //    }
 
-        protected override void BecauseOf() {
-            result = connection.Transfer(collection);
-        }
+    //    protected override void BecauseOf() {
+    //        result = connection.Transfer(collection);
+    //    }
 
-        [Test]
-        public void Should_the_buffers_control_structure_be_sent_to_the_IOCTL_device() {
-            controlDevice
-                .CallsTo(device => device.Control(SPI_IOC_MESSAGE_1, A<SpiTransferControlStructure[]>.That.Matches(s => Predicate(s))))
-                .MustHaveHappened(Repeated.Exactly.Once);
-        }
+    //    [Test]
+    //    public void Should_the_buffers_control_structure_be_sent_to_the_IOCTL_device() {
+    //        controlDevice
+    //            .CallsTo(device => device.Control(SPI_IOC_MESSAGE_1, A<SpiTransferControlStructure[]>.That.Matches(s => Predicate(s))))
+    //            .MustHaveHappened(Repeated.Exactly.Once);
+    //    }
 
-        private bool Predicate(IEnumerable<SpiTransferControlStructure> control_structures) {
-            return control_structures.Contains(controlStructure);
-        }
+    //    private bool Predicate(IEnumerable<SpiTransferControlStructure> control_structures) {
+    //        return control_structures.Contains(controlStructure);
+    //    }
 
-        [Test]
-        public void Should_it_return_the_pinvoke_result_code() {
-            result.Should().Be(IOCTL_PINVOKE_RESULT_CODE);
-        }
-    }
+    //    [Test]
+    //    public void Should_it_return_the_pinvoke_result_code() {
+    //        result.Should().Be(IOCTL_PINVOKE_RESULT_CODE);
+    //    }
+    //}
 
 }

@@ -84,14 +84,14 @@ namespace Raspberry.IO.SerialPeripheralInterface
         /// </summary>
         /// <param name="buffer">The transfer buffer that contains data to be send and/or the received data.</param>
         /// <returns>An <see cref="int"/> that contains the result of the transfer operation.</returns>
-        int Transfer(ISpiTransferBuffer buffer);
+        int Transfer(SpiDevice device, ISpiTransferBuffer buffer);
 
         /// <summary>
         /// Starts the SPI data transfer.
         /// </summary>
         /// <param name="transferBuffers">The transfer buffers that contain data to be send and/or the received data.</param>
         /// <returns>An <see cref="int"/> that contains the result of the transfer operation.</returns>
-        int Transfer(ISpiTransferBufferCollection transferBuffers);
+        int Transfer(SpiDevice device, ISpiTransferBufferCollection transferBuffers);
 
         #endregion
     }

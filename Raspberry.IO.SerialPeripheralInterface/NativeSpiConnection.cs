@@ -8,6 +8,12 @@ using Raspberry.IO.Interop;
 
 namespace Raspberry.IO.SerialPeripheralInterface
 {
+    public enum SpiDevice : int
+    {
+        device0 = 0,
+        device1 = 1
+    }
+
     /// <summary>
     /// Native SPI connection that communicates with Linux's userspace SPI driver (e.g. /dev/spidev0.0) using IOCTL.
     /// </summary>
@@ -22,10 +28,14 @@ namespace Raspberry.IO.SerialPeripheralInterface
         internal const UInt32 SPI_IOC_WR_BITS_PER_WORD = 0x40016b03;
         internal const UInt32 SPI_IOC_RD_MAX_SPEED_HZ = 0x80046b04;
         internal const UInt32 SPI_IOC_WR_MAX_SPEED_HZ = 0x40046b04;
+
+        internal const string device0 = "/dev/spidev0.0";
+        internal const string device1 = "/dev/spidev0.1";
         #endregion
 
         #region Fields
-        private readonly ISpiControlDevice deviceFile;
+        private readonly ISpiControlDevice deviceFile0;
+        private readonly ISpiControlDevice deviceFile1;
         private UInt16 delay;
         private UInt32 maxSpeed;
         private UInt32 mode;
@@ -35,41 +45,17 @@ namespace Raspberry.IO.SerialPeripheralInterface
         #region Instance Management
 
         /// <summary>
-        /// Creates a new instance of the <see cref="NativeSpiConnection"/> class.
-        /// </summary>
-        /// <param name="deviceFile">A control device (IOCTL) to the device file (e.g. /dev/spidev0.0).</param>
-        public NativeSpiConnection(ISpiControlDevice deviceFile)
-        {
-            this.deviceFile = deviceFile;
-        }
-
-        /// <summary>
         /// Creates a new instance of the <see cref="NativeSpiConnection"/> class and initializes it.
         /// </summary>
         /// <param name="deviceFile">A control device (IOCTL) to the device file (e.g. /dev/spidev0.0).</param>
         /// <param name="settings">Connection settings</param>
-        public NativeSpiConnection(ISpiControlDevice deviceFile, SpiConnectionSettings settings)
-            : this(deviceFile)
+        public NativeSpiConnection(SpiConnectionSettings settings)
         {
+            this.deviceFile0 = new SpiControlDevice(new UnixFile(device0, UnixFileMode.ReadWrite));
+            this.deviceFile1 = new SpiControlDevice(new UnixFile(device1, UnixFileMode.ReadWrite));
+
             Init(settings);
         }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="NativeSpiConnection"/> class and initializes it.
-        /// </summary>
-        /// <param name="deviceFilePath">Full path to the SPI device file (e.g. /dev/spidev0.0).</param>
-        /// <param name="settings">Connection settings</param>
-        public NativeSpiConnection(string deviceFilePath, SpiConnectionSettings settings)
-            : this(new SpiControlDevice(new UnixFile(deviceFilePath, UnixFileMode.ReadWrite)), settings)
-        { }
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="NativeSpiConnection"/> class.
-        /// </summary>
-        /// <param name="deviceFilePath">Full path to the SPI device file (e.g. /dev/spidev0.0).</param>
-        public NativeSpiConnection(string deviceFilePath)
-            : this(new SpiControlDevice(new UnixFile(deviceFilePath, UnixFileMode.ReadWrite)))
-        { }
 
         /// <summary>
         /// Dispose instance and free all resources.
@@ -88,7 +74,8 @@ namespace Raspberry.IO.SerialPeripheralInterface
         {
             if (disposing)
             {
-                deviceFile.Dispose();
+                deviceFile0.Dispose();
+                deviceFile1.Dispose();
             }
         }
 
@@ -146,10 +133,6 @@ namespace Raspberry.IO.SerialPeripheralInterface
         public void SetMaxSpeed(UInt32 maxSpeedInHz)
         {
             maxSpeed = maxSpeedInHz;
-            deviceFile.Control(SPI_IOC_WR_MAX_SPEED_HZ, ref maxSpeedInHz)
-                .ThrowOnPInvokeError<SetMaxSpeedException>("Can't set max speed in HZ (SPI_IOC_WR_MAX_SPEED_HZ). Error {1}: {2}");
-            deviceFile.Control(SPI_IOC_RD_MAX_SPEED_HZ, ref maxSpeedInHz)
-                .ThrowOnPInvokeError<SetMaxSpeedException>("Can't set max speed in HZ (SPI_IOC_RD_MAX_SPEED_HZ). Error {1}: {2}");
         }
 
         /// <summary>
@@ -159,10 +142,6 @@ namespace Raspberry.IO.SerialPeripheralInterface
         public void SetBitsPerWord(byte wordSize)
         {
             bitsPerWord = wordSize;
-            deviceFile.Control(SPI_IOC_WR_BITS_PER_WORD, ref wordSize)
-                .ThrowOnPInvokeError<SetBitsPerWordException>("Can't set bits per word (SPI_IOC_WR_BITS_PER_WORD). Error {1}: {2}");
-            deviceFile.Control(SPI_IOC_RD_BITS_PER_WORD, ref wordSize)
-                .ThrowOnPInvokeError<SetBitsPerWordException>("Can't set bits per word (SPI_IOC_RD_BITS_PER_WORD). Error {1}: {2}");
         }
 
         /// <summary>
@@ -172,10 +151,6 @@ namespace Raspberry.IO.SerialPeripheralInterface
         public void SetSpiMode(SpiMode spiMode)
         {
             mode = (UInt32)spiMode;
-            deviceFile.Control(SPI_IOC_WR_MODE, ref mode)
-                .ThrowOnPInvokeError<SetSpiModeException>("Can't set SPI mode (SPI_IOC_WR_MODE). Error {1}: {2}");
-            deviceFile.Control(SPI_IOC_RD_MODE, ref mode)
-                .ThrowOnPInvokeError<SetSpiModeException>("Can't set SPI mode (SPI_IOC_RD_MODE). Error {1}: {2}");
         }
 
         /// <summary>
@@ -218,8 +193,12 @@ namespace Raspberry.IO.SerialPeripheralInterface
         /// </summary>
         /// <param name="buffer">The transfer buffer that contains data to be send and/or the received data.</param>
         /// <returns>An <see cref="int"/> that contains the result of the transfer operation.</returns>
-        public int Transfer(ISpiTransferBuffer buffer)
+        public int Transfer(SpiDevice device, ISpiTransferBuffer buffer)
         {
+            var controlDevice = GetSpiControlDevice(device);
+
+            SpiOpen(controlDevice);
+
             if (buffer == null)
             {
                 throw new ArgumentNullException("buffer");
@@ -227,7 +206,7 @@ namespace Raspberry.IO.SerialPeripheralInterface
 
             var request = Interop.GetSpiMessageRequest(1);
             var structure = buffer.ControlStructure;
-            var result = deviceFile.Control(request, ref structure);
+            var result = controlDevice.Control(request, ref structure);
 
             result.ThrowOnPInvokeError<SendSpiMessageException>("Can't send SPI message. Error {1}: {2}");
 
@@ -239,8 +218,12 @@ namespace Raspberry.IO.SerialPeripheralInterface
         /// </summary>
         /// <param name="transferBuffers">The transfer buffers that contain data to be send and/or the received data.</param>
         /// <returns>An <see cref="int"/> that contains the result of the transfer operation.</returns>
-        public int Transfer(ISpiTransferBufferCollection transferBuffers)
+        public int Transfer(SpiDevice device, ISpiTransferBufferCollection transferBuffers)
         {
+            var controlDevice = GetSpiControlDevice(device);
+
+            SpiOpen(controlDevice);
+
             if (transferBuffers == null)
             {
                 throw new ArgumentNullException("transferBuffers");
@@ -249,7 +232,7 @@ namespace Raspberry.IO.SerialPeripheralInterface
             var request = Interop.GetSpiMessageRequest(transferBuffers.Length);
 
             var structures = transferBuffers.Select(buf => buf.ControlStructure).ToArray();
-            var result = deviceFile.Control(request, structures);
+            var result = deviceFile0.Control(request, structures);
 
             result.ThrowOnPInvokeError<SendSpiMessageException>("Can't send SPI messages. Error {1}: {2}");
 
@@ -259,6 +242,36 @@ namespace Raspberry.IO.SerialPeripheralInterface
         #endregion
 
         #region Private Helpers
+        private ISpiControlDevice GetSpiControlDevice(SpiDevice device)
+        {
+            ISpiControlDevice controlDevice = null;
+
+            switch (device)
+            {
+                case SpiDevice.device1:
+                    controlDevice = this.deviceFile1;
+                    break;
+                case SpiDevice.device0:
+                default:
+                    controlDevice = this.deviceFile0;
+                    break;
+            }
+
+            return controlDevice;
+        }
+
+        private void SpiOpen(ISpiControlDevice controlDevice)
+        {
+            controlDevice.Control(SPI_IOC_WR_MODE, ref mode).ThrowOnPInvokeError<SetSpiModeException>("Can't set SPI mode (SPI_IOC_WR_MODE). Error {1}: {2}");
+            controlDevice.Control(SPI_IOC_RD_MODE, ref mode).ThrowOnPInvokeError<SetSpiModeException>("Can't set SPI mode (SPI_IOC_RD_MODE). Error {1}: {2}");
+
+            controlDevice.Control(SPI_IOC_WR_BITS_PER_WORD, ref bitsPerWord).ThrowOnPInvokeError<SetBitsPerWordException>("Can't set bits per word (SPI_IOC_WR_BITS_PER_WORD). Error {1}: {2}");
+            controlDevice.Control(SPI_IOC_RD_BITS_PER_WORD, ref bitsPerWord).ThrowOnPInvokeError<SetBitsPerWordException>("Can't set bits per word (SPI_IOC_RD_BITS_PER_WORD). Error {1}: {2}");
+
+            controlDevice.Control(SPI_IOC_WR_MAX_SPEED_HZ, ref maxSpeed).ThrowOnPInvokeError<SetMaxSpeedException>("Can't set max speed in HZ (SPI_IOC_WR_MAX_SPEED_HZ). Error {1}: {2}");
+            controlDevice.Control(SPI_IOC_RD_MAX_SPEED_HZ, ref maxSpeed).ThrowOnPInvokeError<SetMaxSpeedException>("Can't set max speed in HZ (SPI_IOC_RD_MAX_SPEED_HZ). Error {1}: {2}");
+        }
+
         private void Init(SpiConnectionSettings settings)
         {
             SetSpiMode(settings.Mode);

@@ -49,6 +49,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="EnumTypes\SpiSpeed.cs" />
     <Compile Include="EnumTypes\SpiTransferMode.cs" />
     <Compile Include="Exceptions\SetSpiModeException.cs" />
     <Compile Include="INativeSpiConnection.cs" />
